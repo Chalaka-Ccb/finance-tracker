@@ -1,0 +1,177 @@
+# 💰 FinTrack — Personal Finance & Budget Tracker
+
+A full-stack PERN application built with **PostgreSQL (Supabase)**, **Express.js**, **React**, and **Node.js**. Features income/expense tracking, category-based budgets with visual progress alerts, and an analytics dashboard powered by Recharts.
+
+---
+
+## 📁 Project Structure
+
+```
+fintrack/
+├── server/                    # Express.js REST API
+│   ├── config/
+│   │   └── supabase.js        # Supabase service-role client
+│   ├── controllers/           # Route handlers (thin layer)
+│   ├── services/              # Business logic & DB queries
+│   ├── routes/                # Express routers
+│   ├── middleware/
+│   │   ├── authenticate.js    # JWT verification
+│   │   └── errorHandler.js    # Global error handler
+│   ├── validators/            # Request body validation
+│   └── index.js               # Server entry point
+│
+├── client/                    # React + Vite frontend
+│   ├── src/
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── services/
+│   │   │   └── api.js         # Centralised fetch wrapper
+│   │   ├── components/
+│   │   │   ├── Layout.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── StatCard.jsx
+│   │   │   ├── BudgetProgressBar.jsx
+│   │   │   ├── RecentTransactions.jsx
+│   │   │   └── TransactionForm.jsx
+│   │   ├── pages/
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Transactions.jsx
+│   │   │   ├── Budgets.jsx
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   └── App.jsx
+│   └── index.html
+│
+└── supabase_schema.sql        # Full DB schema with RLS policies
+```
+
+---
+
+## 🗄️ Database Setup (Supabase)
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Go to **SQL Editor** and paste the contents of `supabase_schema.sql`.
+3. Run the script — this creates all tables, enums, RLS policies, and the `budget_progress` view.
+
+---
+
+## ⚙️ Environment Variables
+
+### Server (`server/.env`)
+
+```env
+PORT=5000
+CLIENT_URL=http://localhost:5173
+
+# From Supabase → Project Settings → API
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+### Client (`client/.env`)
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+## 🚀 Installation & Running
+
+### Prerequisites
+
+- Node.js >= 18
+- npm >= 9
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/fintrack.git
+cd fintrack
+```
+
+### 2. Install server dependencies
+
+```bash
+cd server
+npm install
+```
+
+### 3. Install client dependencies
+
+```bash
+cd ../client
+npm install
+```
+
+### 4. Start the backend
+
+```bash
+# from /server
+npm run dev
+```
+
+### 5. Start the frontend
+
+```bash
+# from /client
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 📦 Key Dependencies
+
+| Layer    | Package                  | Purpose                       |
+|----------|--------------------------|-------------------------------|
+| Backend  | `express`                | HTTP server & routing         |
+| Backend  | `@supabase/supabase-js`  | DB client & Auth verification |
+| Backend  | `helmet`, `cors`         | Security headers              |
+| Backend  | `morgan`                 | HTTP request logging          |
+| Frontend | `react-router-dom`       | Client-side routing           |
+| Frontend | `recharts`               | Charts (Bar, Pie)             |
+| Frontend | `tailwindcss`            | Utility-first styling         |
+
+---
+
+## 🔐 Auth Flow
+
+1. User registers or logs in via `POST /api/auth/register|login`.
+2. The backend calls Supabase Auth and returns a JWT `access_token`.
+3. The React client stores the token in `localStorage` and sends it as `Authorization: Bearer <token>` on all protected requests.
+4. The `authenticate` middleware validates the token with Supabase on every protected route.
+
+---
+
+## 📊 Budget Progress Logic
+
+```
+progress_pct = (SUM of expenses in category this month / budget amount) × 100
+```
+
+- **Green** bar: progress < 75 %  
+- **Amber** bar: progress 75–100 %  
+- **Red** bar + warning text: progress > 100 % (over budget)
+
+This is computed server-side in the `budget_progress` SQL view and returned by `GET /api/budgets/progress`.
+
+---
+
+## 🧪 API Endpoints
+
+| Method | Path                        | Description                          |
+|--------|-----------------------------|--------------------------------------|
+| POST   | `/api/auth/register`        | Register new user                    |
+| POST   | `/api/auth/login`           | Login, returns JWT                   |
+| GET    | `/api/transactions`         | List transactions (filterable)       |
+| POST   | `/api/transactions`         | Create transaction                   |
+| PUT    | `/api/transactions/:id`     | Update transaction                   |
+| DELETE | `/api/transactions/:id`     | Delete transaction                   |
+| GET    | `/api/budgets`              | List budgets                         |
+| GET    | `/api/budgets/progress`     | Budget progress with spent amounts   |
+| POST   | `/api/budgets`              | Create budget                        |
+| GET    | `/api/categories`           | List user's categories               |
+| POST   | `/api/categories`           | Create category                      |
