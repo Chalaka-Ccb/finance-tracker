@@ -37,52 +37,84 @@ export default function Budgets() {
     }
   }
 
-  if (loading) return <div className="p-8 text-slate-400">Loading budgets…</div>;
+  if (loading) return (
+    <div className="p-8">
+      <div className="text-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
+        <p className="text-slate-400 font-medium">Loading budgets…</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Budgets</h1>
-
-      {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-
-      {/* Add Budget Form */}
-      <div className="bg-white rounded-2xl shadow p-5">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Create Budget</h2>
-        <form onSubmit={handleAddBudget} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input type="number" placeholder="Category ID" required
-              value={form.category_id}
-              onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-            <input type="number" placeholder="Limit" required step="0.01"
-              value={form.limit}
-              onChange={e => setForm(f => ({ ...f, limit: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-            <select value={form.period}
-              onChange={e => setForm(f => ({ ...f, period: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
-          <button type="submit"
-            className="bg-indigo-600 text-white rounded-lg px-4 py-2 font-semibold text-sm hover:bg-indigo-700 transition-colors">
-            Add Budget
-          </button>
-        </form>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div className="px-8 py-6">
+          <h1 className="text-3xl font-bold text-slate-900">Budgets</h1>
+          <p className="text-slate-500 text-sm mt-1">Set and track your spending limits</p>
+        </div>
       </div>
 
-      {/* Budgets List */}
-      <div className="bg-white rounded-2xl shadow p-5">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Your Budgets</h2>
-        {budgets.length === 0
-          ? <p className="text-slate-400 text-sm">No budgets yet.</p>
-          : (
-            <div className="space-y-3">
-              {budgets.map(budget => <BudgetProgressBar key={budget.budget_id} budget={budget} />)}
+      <div className="p-8 space-y-6">
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Add Budget Form */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Create New Budget</h2>
+          <form onSubmit={handleAddBudget} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Category ID</label>
+                <input type="number" placeholder="Enter category ID" required
+                  value={form.category_id}
+                  onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Budget Limit</label>
+                <input type="number" placeholder="0.00" required step="0.01"
+                  value={form.limit}
+                  onChange={e => setForm(f => ({ ...f, limit: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Period</label>
+                <select value={form.period}
+                  onChange={e => setForm(f => ({ ...f, period: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
             </div>
-          )
-        }
+            <button type="submit"
+              className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg px-6 py-2 font-semibold text-sm hover:from-indigo-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+              Add Budget
+            </button>
+          </form>
+        </div>
+
+        {/* Budgets List */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Budgets</h2>
+          {budgets.length === 0
+            ? (
+              <div className="text-center py-12">
+                <p className="text-slate-400">🎯 No budgets yet. Create one to get started!</p>
+              </div>
+            )
+            : (
+              <div className="space-y-6">
+                {budgets.map(budget => <BudgetProgressBar key={budget.budget_id} budget={budget} />)}
+              </div>
+            )
+          }
+        </div>
       </div>
     </div>
   );

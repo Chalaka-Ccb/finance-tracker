@@ -60,70 +60,102 @@ export default function Dashboard() {
 
   const recent = [...transactions].slice(0, 5);
 
-  if (loading) return <div className="p-8 text-slate-400">Loading dashboard…</div>;
+  if (loading) return (
+    <div className="p-8">
+      <div className="text-center py-12">
+        <div className="animate-spin w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-4"></div>
+        <p className="text-slate-400 font-medium">Loading dashboard…</p>
+      </div>
+    </div>
+  );
+
+  const monthName = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Total Income"   value={totalIncome}  type="income"  />
-        <StatCard label="Total Expenses" value={totalExpense} type="expense" />
-        <StatCard label="Net Balance"    value={netBalance}   type="balance" />
-      </div>
-
-      {/* ── Charts ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Income vs Expenses</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={barData}>
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
-              <Legend />
-              <Bar dataKey="Income"  fill="#10b981" radius={[6,6,0,0]} />
-              <Bar dataKey="Expense" fill="#ef4444" radius={[6,6,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Pie Chart */}
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Expense Distribution</h2>
-          {pieData.length === 0
-            ? <p className="text-slate-400 text-sm">No expenses this month.</p>
-            : (
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                    {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Legend />
-                  <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
-                </PieChart>
-              </ResponsiveContainer>
-            )
-          }
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div className="px-8 py-6">
+          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-1">Financial overview for {monthName}</p>
         </div>
       </div>
 
-      {/* ── Budget Progress ── */}
-      {budgetProgress.length > 0 && (
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Budget Progress</h2>
-          <div className="space-y-3">
-            {budgetProgress.map(b => <BudgetProgressBar key={b.budget_id} budget={b} />)}
+      <div className="p-8 space-y-8">
+        {/* ── Key Metrics ── */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Key Metrics</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <StatCard label="Total Income"   value={totalIncome}  type="income"  />
+            <StatCard label="Total Expenses" value={totalExpense} type="expense" />
+            <StatCard label="Net Balance"    value={netBalance}   type="balance" />
           </div>
         </div>
-      )}
 
-      {/* ── Recent Transactions ── */}
-      <div className="bg-white rounded-2xl shadow p-5">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4">Recent Transactions</h2>
-        <RecentTransactions transactions={recent} />
+        {/* ── Analytics ── */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Analytics</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Bar Chart */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-6">Income vs Expenses</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
+                  <XAxis dataKey="label" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                  <Tooltip 
+                    formatter={(v) => `$${v.toFixed(2)}`}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '12px' }} />
+                  <Bar dataKey="Income"  fill="#10b981" radius={[6,6,0,0]} />
+                  <Bar dataKey="Expense" fill="#ef4444" radius={[6,6,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Pie Chart */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-6">Expense Distribution</h3>
+              {pieData.length === 0
+                ? <div className="flex items-center justify-center h-64 text-slate-400">
+                    <p>No expenses this month.</p>
+                  </div>
+                : (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                        {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <Legend wrapperStyle={{ fontSize: '12px' }} />
+                      <Tooltip formatter={(v) => `$${v.toFixed(2)}`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )
+              }
+            </div>
+          </div>
+        </div>
+
+        {/* ── Budget Progress ── */}
+        {budgetProgress.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Budget Progress</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              <div className="space-y-5">
+                {budgetProgress.map(b => <BudgetProgressBar key={b.budget_id} budget={b} />)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Recent Transactions ── */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Recent Transactions</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <RecentTransactions transactions={recent} />
+          </div>
+        </div>
       </div>
     </div>
   );
